@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tab1"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_share"
+        android:title="Buy" />
+    <item
+        android:id="@+id/tab2"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="Sell" />
+    <item
+        android:id="@+id/tab4"
+        android:enabled="true"
+        android:icon="@drawable/users"
+        android:title="Users" />
+    <item
+        android:id="@+id/tab5"
+        android:enabled="true"
+        android:icon="@drawable/ic_dialog_info"
+        android:title="Profile" />
+
+</menu>
