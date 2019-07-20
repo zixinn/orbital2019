@@ -65,7 +65,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView show_message;
-        public ImageView profileImage;
         public TextView txt_seen;
 
         public ViewHolder(View itemView) {

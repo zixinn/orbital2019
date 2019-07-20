@@ -38,7 +38,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     String theLastMessage;
     int unread;
-    String personname, sellername, foodname;
 
     public UserAdapter(Context context, List<UserDetails> users, List<Pair> pairs) {
         this.context = context;
@@ -65,17 +64,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 List<DocumentSnapshot> docs = task.getResult().getDocuments();
                 DocumentSnapshot document = docs.get(0);
                 String name = (String) document.get(UserDetails.nameKey);
-                personname = name;
                 hold.username.setText(name);
-            }
-        });
-        db.collection(UserDetails.userDetailsKey).whereEqualTo(UserDetails.idKey, pair.getSeller()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                DocumentSnapshot document = docs.get(0);
-                String name = (String) document.get(UserDetails.nameKey);
-                sellername = name;
             }
         });
         db.collection(PostDetails.postDetailsKey).whereEqualTo(PostDetails.inputKey, Long.parseLong(pair.getMeal())).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -84,7 +73,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 List<DocumentSnapshot> docs = task.getResult().getDocuments();
                 DocumentSnapshot document = docs.get(0);
                 String name = (String) document.get(PostDetails.foodNameKey);
-                foodname = name;
                 hold.foodname.setText(name);
             }
         });
@@ -94,13 +82,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, MessageActivity.class);
-                intent.putExtra("personName", personname);
+                final Intent intent = new Intent(context, MessageActivity.class);
+                intent.putExtra("personName", hold.username.getText().toString());
                 intent.putExtra("personID", pair.getPerson());
-                intent.putExtra("foodName", foodname);
+                intent.putExtra("foodName", hold.foodname.getText().toString());
                 intent.putExtra("foodID", pair.getMeal());
                 intent.putExtra("sellerID", pair.getSeller());
-                intent.putExtra("sellerName", sellername);
+                FirebaseFirestore fs = FirebaseFirestore.getInstance();
+                fs.collection(UserDetails.userDetailsKey).whereEqualTo(UserDetails.idKey, pair.getSeller()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        DocumentSnapshot document = docs.get(0);
+                        String name = (String) document.get(UserDetails.nameKey);
+                        intent.putExtra("sellerName", name);
+                    }
+                });
                 context.startActivity(intent);
             }
         });
@@ -140,7 +137,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     if (user != null && chat != null) {
                         if (((chat.getReceiver().equals(user.getUid()) && chat.getSender().equals(otheruser))||
                                 (chat.getReceiver().equals(otheruser) && chat.getSender().equals(user.getUid())))
-                            && chat.getFood().equals(food) && chat.getSeller().equals(sell)) {
+                                && chat.getFood().equals(food) && chat.getSeller().equals(sell)) {
                             theLastMessage = chat.getMessage();
                         }
                     }
@@ -204,6 +201,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
             }
         });
+
 
     }
 

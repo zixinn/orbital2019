@@ -69,7 +69,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final FirebaseUser user = mAuth.getCurrentUser();
-        final String name = user.getDisplayName();
         final String id = user.getUid();
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -272,57 +271,67 @@ public class EditProfileActivity extends AppCompatActivity {
                                             progressDialog.setTitle("Deleting...");
                                             progressDialog.show();
 
-                                            userDetails.deleteEntry();
-                                            user.delete();
-
-                                            db.collection(PostDetails.postDetailsKey).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                                                    for (DocumentSnapshot doc : docs) {
-                                                        if (doc.contains(PostDetails.foodNameKey) && doc.contains(PostDetails.descriptionKey) && doc.contains(PostDetails.ingredientKey)
-                                                                && doc.contains(PostDetails.priceKey) && doc.contains(PostDetails.sellerKey)
-                                                                && doc.contains(PostDetails.areaKey) && doc.contains(PostDetails.typeKey) && doc.contains(PostDetails.inputKey)
-                                                                && doc.contains(PostDetails.dateKey)) {
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        userDetails.deleteEntry();
 
-                                                            String seller = (String) doc.get(PostDetails.sellerKey);
+                                                        db.collection(PostDetails.postDetailsKey).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                                                                for (DocumentSnapshot doc : docs) {
+                                                                    if (doc.contains(PostDetails.foodNameKey) && doc.contains(PostDetails.descriptionKey) && doc.contains(PostDetails.ingredientKey)
+                                                                            && doc.contains(PostDetails.priceKey) && doc.contains(PostDetails.sellerKey)
+                                                                            && doc.contains(PostDetails.areaKey) && doc.contains(PostDetails.typeKey) && doc.contains(PostDetails.inputKey)
+                                                                            && doc.contains(PostDetails.dateKey)) {
 
-                                                            if (seller.equals(myID)) {
+                                                                        String seller = (String) doc.get(PostDetails.sellerKey);
 
-                                                                String name = (String) doc.get(PostDetails.foodNameKey);
-                                                                String description = (String) doc.get(PostDetails.descriptionKey);
-                                                                String ingredient = (String) doc.get(PostDetails.ingredientKey);
-                                                                String price = (String) doc.get(PostDetails.priceKey);
-                                                                String sArea = (String) doc.get(PostDetails.areaKey);
+                                                                        if (seller.equals(myID)) {
 
-                                                                Map type = (Map) doc.get(PostDetails.typeKey);
-                                                                Boolean halal = (Boolean) type.get(PostDetails.halalKey);
-                                                                Boolean vegetarian = (Boolean) type.get(PostDetails.vegetarianKey);
-                                                                Boolean chinese = (Boolean) type.get(PostDetails.chineseKey);
-                                                                Boolean malay = (Boolean) type.get(PostDetails.malayKey);
-                                                                Boolean indian = (Boolean) type.get(PostDetails.indianKey);
-                                                                Boolean western = (Boolean) type.get(PostDetails.westernKey);
-                                                                Boolean other = (Boolean) type.get(PostDetails.otherKey);
+                                                                            String name = (String) doc.get(PostDetails.foodNameKey);
+                                                                            String description = (String) doc.get(PostDetails.descriptionKey);
+                                                                            String ingredient = (String) doc.get(PostDetails.ingredientKey);
+                                                                            String price = (String) doc.get(PostDetails.priceKey);
+                                                                            String sArea = (String) doc.get(PostDetails.areaKey);
 
-                                                                String image = (String) doc.get(PostDetails.imageKey);
-                                                                long input = (long) doc.get(PostDetails.inputKey);
-                                                                String date = (String) doc.get(PostDetails.dateKey);
+                                                                            Map type = (Map) doc.get(PostDetails.typeKey);
+                                                                            Boolean halal = (Boolean) type.get(PostDetails.halalKey);
+                                                                            Boolean vegetarian = (Boolean) type.get(PostDetails.vegetarianKey);
+                                                                            Boolean chinese = (Boolean) type.get(PostDetails.chineseKey);
+                                                                            Boolean malay = (Boolean) type.get(PostDetails.malayKey);
+                                                                            Boolean indian = (Boolean) type.get(PostDetails.indianKey);
+                                                                            Boolean western = (Boolean) type.get(PostDetails.westernKey);
+                                                                            Boolean other = (Boolean) type.get(PostDetails.otherKey);
 
-                                                                PostDetails oldPost = new PostDetails(name, description, ingredient, price, seller, sArea,
-                                                                        halal, vegetarian, chinese, malay, indian, western, other, image, input, date);
-                                                                oldPost.deleteEntry();
+                                                                            String image = (String) doc.get(PostDetails.imageKey);
+                                                                            long input = (long) doc.get(PostDetails.inputKey);
+                                                                            String date = (String) doc.get(PostDetails.dateKey);
 
+                                                                            PostDetails oldPost = new PostDetails(name, description, ingredient, price, seller, sArea,
+                                                                                    halal, vegetarian, chinese, malay, indian, western, other, image, input, date);
+                                                                            oldPost.deleteEntry();
+
+                                                                        }
+
+                                                                    }
+                                                                }
                                                             }
+                                                        });
 
-                                                        }
+                                                        Intent intent = new Intent(getApplicationContext(), LogActivity.class);
+                                                        startActivityForResult(intent, 0);
+                                                        progressDialog.dismiss();
+                                                        Toast.makeText(getApplicationContext(), "Profile deleted successfully!", Toast.LENGTH_LONG).show();
+
+
+                                                    } else {
+                                                        progressDialog.dismiss();
                                                     }
                                                 }
                                             });
-
-                                            Intent intent = new Intent(getApplicationContext(), LogActivity.class);
-                                            startActivityForResult(intent, 0);
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getApplicationContext(), "Profile deleted successfully!", Toast.LENGTH_LONG).show();
 
                                         }
                                     });
